@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="headerFont">
-      <h1>N.a.N.</h1>
+      <p style="font-family: 'Syne Mono', monospace; font-size: 4rem;" class="mt-4">Not at Night</p>
     </div>
   </div>
 </template>
