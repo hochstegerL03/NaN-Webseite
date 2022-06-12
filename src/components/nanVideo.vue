@@ -3,7 +3,7 @@
     <div class="position-relative">
       <div class="position-absolute">
         <div
-          style="z-index: 2; height: 100%; width: 100%; --bs-bg-opacity: 0.5"
+          style="z-index: 2147483647; height: 100%; width: 100%; --bs-bg-opacity: 0.5"
           class="position-absolute hidden container-fluid d-none bg-black"
           id="menu"
         >
@@ -15,14 +15,14 @@
           </div>
           <div class="row h-100">
             <div class="col-6 text-center my-auto">
-              <button class="btn btn-primary text-center" @click="goNext(1)">Option 1</button>
+              <button class="btn btn-primary text-center" @click="goNext(0)">Option 1</button>
             </div>
             <div class="col-6 text-center my-auto">
-              <button class="btn btn-primary" @click="goNext(2)">Option 2</button>
+              <button class="btn btn-primary" @click="goNext(1)">Option 2</button>
             </div>
           </div>
         </div>
-        <div class="justify-content-center text-center" style="z-index: 0; top: 0px">
+        <div class="justify-content-center text-center" style="top: 0px" id="videoDiv">
           <video
             style="width: 100%"
             controls
@@ -48,8 +48,21 @@ const video = ref();
 const loop = ref();
 const menu = ref();
 const source = ref();
+const videoDiv = ref();
+const videoList = ref(['1.mp4', '2.mp4', '3.mp4', '4.mp4']);
+const choiceList = ref([
+  ['1.mp4', '2.mp4'],
+  ['1.mp4', '2.mp4'],
+]);
+const counter = ref(0);
 const isReady = ref([false, false]);
 const choiceMenu = async () => {
+  if (document.fullscreenElement) {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  }
   menu.value.classList.toggle('d-none');
   await waitForReady(loop.value);
   loop.value.play();
@@ -91,9 +104,11 @@ const waitForReady = async (obj) => {
 };
 
 const goNext = async (val) => {
-  if (val == 1) video.value.src = '/videos/next.mp4';
-  else video.value.src = '/videos/2.mp4';
+  if (val == 0) video.value.src = `/videos/${choiceList.value[counter.value][val]}`;
+  else video.value.src = `/videos/${choiceList.value[counter.value][val]}`;
   goBack();
+  if (counter.value < choiceList.value.length - 1) counter.value++;
+  else counter.value = 0;
 };
 
 onMounted(async () => {
@@ -101,6 +116,7 @@ onMounted(async () => {
   menu.value = document.getElementById('menu');
   source.value = document.getElementById('vidSource');
   loop.value = document.getElementsByTagName('video')[1];
+  videoDiv.value = document.getElementById('videoDiv');
   video.value.load();
   video.value.play();
   video.value.addEventListener('loadeddata', (event) => {
@@ -109,6 +125,12 @@ onMounted(async () => {
   loop.value.addEventListener('loadeddata', (event) => {
     isReady.value[1] = true;
   });
+  video.value.addEventListener('loadedmetadata', (e) => {
+    let player = e.target;
+    player.width = videoDiv.value.clientWidth;
+    player.height = videoDiv.value.clientHeight;
+  });
+  loop.value.addEventListener('loadedmetadata', (e) => {});
 });
 </script>
 
