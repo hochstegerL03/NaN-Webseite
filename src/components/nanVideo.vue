@@ -7,18 +7,36 @@
           class="position-absolute hidden container-fluid d-none bg-black"
           id="menu"
         >
-          <div class="row">
+          <div class="row h-25">
             <div class="col-md-11 col-9 text-center"></div>
             <div class="col-md-1 col-3 text-center">
-              <button class="btn btn-primary mt-3" @click="goBack">X</button>
+              <button
+                class="btn text-white mt-3"
+                style="background-color: transparent"
+                @click="goBack"
+              >
+                X
+              </button>
             </div>
           </div>
-          <div class="row h-100">
+          <div class="row h-75">
             <div class="col-6 text-center my-auto">
-              <button class="btn btn-primary text-center" @click="goNext(0)">Option 1</button>
+              <button
+                class="btn text-white p-3"
+                style="background-color: transparent"
+                @click="goNext(0)"
+              >
+                {{ choiceListText[counter][0] }}
+              </button>
             </div>
             <div class="col-6 text-center my-auto">
-              <button class="btn btn-primary" @click="goNext(1)">Option 2</button>
+              <button
+                class="btn text-white p-3"
+                style="background-color: transparent"
+                @click="goNext(1)"
+              >
+                {{ choiceListText[counter][1] }}
+              </button>
             </div>
           </div>
         </div>
@@ -31,7 +49,7 @@
             class=""
             id="main"
           >
-            <source src="/videos/placeholder.mp4" type="video/mp4" />
+            <source src="/videos/seq_1.mp4" type="video/mp4" />
           </video>
           <video style="width: 100%" loop class="d-none" id="loop">
             <source src="/videos/loop.mp4" type="video/mp4" />
@@ -42,6 +60,12 @@
   </div>
 </template>
 
+<style>
+.btn:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+</style>
+
 <script setup>
 import { onMounted, ref } from 'vue';
 const video = ref();
@@ -49,12 +73,21 @@ const loop = ref();
 const menu = ref();
 const source = ref();
 const videoDiv = ref();
-const videoList = ref(['1.mp4', '2.mp4', '3.mp4', '4.mp4']);
 const choiceList = ref([
-  ['1.mp4', '2.mp4'],
-  ['1.mp4', '2.mp4'],
+  ['seq_1.mp4', 'seq_1.mp4', 1, 1],
+  ['seq_2.mp4', 'seq_3.mp4', 0, 2],
+  ['seq_4.mp4', 'seq_8.mp4', 3, 0],
+  ['seq_6.mp4', 'seq_7.mp4', 0, 0],
 ]);
-const counter = ref(0);
+const choiceListText = ref([
+  ['Zum Anfang zurückgehen.', 'Zum Anfang zurückspringen.'],
+  ['Hubert beschuldigen der Mörder zu sein.', 'Ins Wohnzimmer gehen'],
+  ['Leiche untersuchen.', 'Behaupten es war ein natürlicher Tod.'],
+  ['Rechts vorwerfen der Mörder zu sein.', 'Schweigen.'],
+  ['Auf Meinung behaaren.', 'Fragen wo Hubert war.'],
+  ['Verleugnen.', 'Hubert erneut als Mörder beschimpfen.'],
+]);
+const counter = ref(1);
 const isReady = ref([false, false]);
 const choiceMenu = async () => {
   if (document.fullscreenElement) {
@@ -107,7 +140,8 @@ const goNext = async (val) => {
   if (val == 0) video.value.src = `/videos/${choiceList.value[counter.value][val]}`;
   else video.value.src = `/videos/${choiceList.value[counter.value][val]}`;
   goBack();
-  if (counter.value < choiceList.value.length - 1) counter.value++;
+  if (counter.value < choiceList.value.length - 1)
+    counter.value = choiceList.value[counter.value][2 + val];
   else counter.value = 0;
 };
 
@@ -119,10 +153,10 @@ onMounted(async () => {
   videoDiv.value = document.getElementById('videoDiv');
   video.value.load();
   video.value.play();
-  video.value.addEventListener('loadeddata', (event) => {
+  video.value.addEventListener('loadeddata', () => {
     isReady.value[0] = true;
   });
-  loop.value.addEventListener('loadeddata', (event) => {
+  loop.value.addEventListener('loadeddata', () => {
     isReady.value[1] = true;
   });
   video.value.addEventListener('loadedmetadata', (e) => {
@@ -130,7 +164,7 @@ onMounted(async () => {
     player.width = videoDiv.value.clientWidth;
     player.height = videoDiv.value.clientHeight;
   });
-  loop.value.addEventListener('loadedmetadata', (e) => {});
+  loop.value.addEventListener('loadedmetadata', () => {});
 });
 </script>
 
